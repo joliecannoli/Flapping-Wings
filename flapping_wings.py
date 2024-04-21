@@ -19,6 +19,11 @@ bat_animation_delay = 400
 last_bat_update = pygame.time.get_ticks() 
 bat_index = 0
 
+vertical_velocity_dragon = 0
+vertical_velocity_bat = 0 
+
+gravity = 0.5
+
 def play_start_dragon_sound():   
     pygame.mixer.music.load("assets/sound_effects/wings_flapping.wav")
     pygame.mixer.music.play() 
@@ -83,29 +88,32 @@ def display_sprite_screen():
     pygame.display.update() 
 
 def animate_dragon(): 
-    global dragon_y, dragon_speed, last_dragon_update, dragon_index
+    global dragon_y, dragon_speed, last_dragon_update, dragon_index, vertical_velocity_dragon
     current_time = pygame.time.get_ticks() 
     if current_time - last_dragon_update > dragon_animation_delay:  
             dragon_index = (dragon_index + 1) % len(dragon) 
             last_dragon_update = current_time 
-    dragon_y += dragon_speed 
-    if dragon_y > 220 or dragon_y < 185:
-        dragon_speed *= -1
+    dragon_y += dragon_speed + vertical_velocity_dragon 
+    vertical_velocity_dragon += gravity 
+    if dragon_y > 220:
+        dragon_y = 220
+        vertical_velocity_dragon = 0
         play_start_dragon_sound()
 
 def animate_bat():
-    global bat_y, bat_speed, last_bat_update, bat_index
+    global bat_y, bat_speed, last_bat_update, bat_index, vertical_velocity_bat, gravity 
     current_time = pygame.time.get_ticks() 
     if current_time - last_bat_update > bat_animation_delay:
         bat_index = (bat_index + 1) % len(bat)
         last_bat_update = current_time 
-    bat_y += bat_speed 
+    bat_y += bat_speed + vertical_velocity_bat
+    vertical_velocity_bat += gravity 
     if bat_y > 180 or bat_y < 150:
         bat_speed *= -1 
         play_start_dragon_sound() 
 
 def main_loop():
-    global current_bg, dragon_index, bat_index, is_dragon
+    global current_bg, dragon_index, bat_index, is_dragon, vertical_velocity_dragon, vertical_velocity_bat
     running = True
     current_screen ="start_screen"
     is_dragon = True 
@@ -135,22 +143,16 @@ def main_loop():
                         current_bg = notre_dame_bg
                     else: 
                         current_bg = mountain_bg
+                elif event.key == pygame.K_SPACE:
+                    if is_dragon:
+                        vertical_velocity_dragon = -8
+                    else:
+                        vertical_velocity_bat = -8
 
         if is_dragon:
             animate_dragon()
         else:
             animate_bat()
-    
+
 if __name__ == "__main__": 
     main_loop() 
-
- 
-
-
-    
-
-
-
-
-
-
