@@ -13,6 +13,12 @@ dragon_animation_delay = 400
 last_dragon_update = pygame.time.get_ticks()
 dragon_index = 0
 
+bat_x, bat_y = 400, 150
+bat_speed = 2
+bat_animation_delay = 400
+last_bat_update = pygame.time.get_ticks() 
+bat_index = 0
+
 def play_start_dragon_sound():   
     pygame.mixer.music.load("assets/sound_effects/wings_flapping.wav")
     pygame.mixer.music.play() 
@@ -33,6 +39,9 @@ current_bg = mountain_bg
 
 dragon = [pygame.image.load(os.path.join("assets/characters/dragon", "dragon1.png")),
           pygame.image.load(os.path.join("assets/characters/dragon", "dragon2.png"))]
+
+bat = [pygame.image.load(os.path.join("assets/characters/bat", "bat1.png")),
+       pygame.image.load(os.path.join("assets/characters/bat", "bat2.png"))]
 
 start_button = pygame.image.load(os.path.join("assets/buttons", "start.png"))
 start_button = pygame.transform.scale(start_button, (220, 78))
@@ -65,11 +74,15 @@ def display_sprite_screen():
     screen.blit(sprite_text, (395, 55))
     screen.blit(left_arrow, (0, 150))
     screen.blit(right_arrow, (370, 125))
-    screen.blit(dragon[dragon_index], (dragon_x, dragon_y))
+    if is_dragon: 
+        screen.blit(dragon[dragon_index], (dragon_x, dragon_y))
+    else:
+        resized_bat = pygame.transform.scale(bat[bat_index], (bat[bat_index].get_width() * 1.5, bat[bat_index].get_height() * 1.5))
+        screen.blit(resized_bat, (bat_x, bat_y))
     screen.blit(start_text, (445, 400))
     pygame.display.update() 
 
-def animate_start_dragon(): 
+def animate_dragon(): 
     global dragon_y, dragon_speed, last_dragon_update, dragon_index
     current_time = pygame.time.get_ticks() 
     if current_time - last_dragon_update > dragon_animation_delay:  
@@ -79,11 +92,23 @@ def animate_start_dragon():
     if dragon_y > 220 or dragon_y < 185:
         dragon_speed *= -1
         play_start_dragon_sound()
-    
+
+def animate_bat():
+    global bat_y, bat_speed, last_bat_update, bat_index
+    current_time = pygame.time.get_ticks() 
+    if current_time - last_bat_update > bat_animation_delay:
+        bat_index = (bat_index + 1) % len(bat)
+        last_bat_update = current_time 
+    bat_y += bat_speed 
+    if bat_y > 180 or bat_y < 150:
+        bat_speed *= -1 
+        play_start_dragon_sound() 
+
 def main_loop():
-    global current_bg
+    global current_bg, dragon_index, bat_index, is_dragon
     running = True
     current_screen ="start_screen"
+    is_dragon = True 
     while running: 
         if current_screen == "start_screen":
             display_start_screen()
@@ -101,6 +126,7 @@ def main_loop():
                     current_screen = "settings_screen"
                 elif left_arrow_rect.collidepoint(event.pos) or right_arrow_rect.collidepoint(event.pos):
                     play_button_click_sound() 
+                    is_dragon = not is_dragon
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RIGHT: 
                     if current_bg == mountain_bg:
@@ -108,9 +134,13 @@ def main_loop():
                     elif current_bg == cave_bg:
                         current_bg = notre_dame_bg
                     else: 
-                        current_bg = mountain_bg 
-        animate_start_dragon()
+                        current_bg = mountain_bg
 
+        if is_dragon:
+            animate_dragon()
+        else:
+            animate_bat()
+    
 if __name__ == "__main__": 
     main_loop() 
 
