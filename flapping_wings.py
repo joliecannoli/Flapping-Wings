@@ -21,7 +21,6 @@ def play_button_click_sound():
     pygame.mixer.music.load("assets/sound_effects/button_click.wav")
     pygame.mixer.music.play() 
 
-
 mountain_bg = pygame.image.load(os.path.join("assets/backgrounds", "mountains.png"))
 cave_bg = pygame.image.load(os.path.join("assets/backgrounds", "cave.png"))
 notre_dame_bg = pygame.image.load(os.path.join("assets/backgrounds", "notre_dame.png"))
@@ -37,6 +36,12 @@ dragon = [pygame.image.load(os.path.join("assets/characters/dragon", "dragon1.pn
 
 start_button = pygame.image.load(os.path.join("assets/buttons", "start.png"))
 start_button = pygame.transform.scale(start_button, (220, 78))
+
+left_arrow = pygame.image.load(os.path.join("assets/buttons", "arrow_left.png"))
+right_arrow = pygame.image.load(os.path.join("assets/buttons", "arrow_right.png"))
+
+left_arrow = pygame.transform.scale(left_arrow, (700, 300))
+right_arrow = pygame.transform.scale(right_arrow, (700, 300))
     
 def display_start_screen():
     title = pygame.image.load(os.path.join("assets/misc", "title.png"))
@@ -51,14 +56,10 @@ def display_start_screen():
     pygame.display.update() 
 
 def display_sprite_screen():
-    left_arrow = pygame.image.load(os.path.join("assets/buttons", "arrow_left.png"))
-    right_arrow = pygame.image.load(os.path.join("assets/buttons", "arrow_right.png"))
     sprite_text = font.render("Select your character", True, (40, 60, 120))
     start_text = font.render("Press space key to begin", True, (40, 60, 120))
 
     sprite_text = pygame.transform.scale(sprite_text, (280, 50))
-    left_arrow = pygame.transform.scale(left_arrow, (700, 300))
-    right_arrow = pygame.transform.scale(right_arrow, (700, 300))
 
     screen.blit(current_bg, (0, 0))
     screen.blit(sprite_text, (395, 55))
@@ -93,9 +94,13 @@ def main_loop():
                 running = False
             elif event.type == pygame.MOUSEBUTTONDOWN and event.button ==1:
                 start_button_rect = start_button.get_rect(topleft=(420, 450))
+                left_arrow_rect = left_arrow.get_rect(topleft=(0,150))
+                right_arrow_rect = right_arrow.get_rect(topleft=(370, 125))
                 if start_button_rect.collidepoint(event.pos):
                     play_button_click_sound() 
                     current_screen = "settings_screen"
+                elif left_arrow_rect.collidepoint(event.pos) or right_arrow_rect.collidepoint(event.pos):
+                    play_button_click_sound() 
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RIGHT: 
                     if current_bg == mountain_bg:
