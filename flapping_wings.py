@@ -7,7 +7,6 @@ screen_width, screen_height = 1100, 600
 screen = pygame.display.set_mode((screen_width, screen_height))
 font = pygame.font.Font('FFFFORWA.ttf', 10)
 
-
 dragon_x, dragon_y = 400, 200
 dragon_speed = 2
 dragon_animation_delay = 400 
@@ -51,6 +50,10 @@ def display_start_screen():
     screen.blit(start_dragon[start_dragon_index], (dragon_x, dragon_y))
     pygame.display.update() 
 
+def display_sprite_screen():
+    screen.blit(current_bg, (0, 0))
+    pygame.display.update() 
+
 def animate_start_dragon(): 
     global dragon_y, dragon_speed, last_dragon_update, start_dragon_index
     current_time = pygame.time.get_ticks() 
@@ -65,8 +68,12 @@ def animate_start_dragon():
 def main_loop():
     global current_bg
     running = True
+    current_screen ="start_screen"
     while running: 
-        display_start_screen() 
+        if current_screen == "start_screen":
+            display_start_screen()
+        elif current_screen == "settings_screen":
+            display_sprite_screen() 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
@@ -74,13 +81,15 @@ def main_loop():
                 start_button_rect = start_button.get_rect(topleft=(420, 450))
                 if start_button_rect.collidepoint(event.pos):
                     play_button_click_sound() 
-            elif event.type == pygame.KEYDOWN and event.key == pygame.K_RIGHT: 
-                if current_bg == mountain_bg:
-                    current_bg = cave_bg 
-                elif current_bg == cave_bg:
-                    current_bg = notre_dame_bg
-                else: 
-                    current_bg = mountain_bg 
+                    current_screen = "settings_screen"
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_RIGHT: 
+                    if current_bg == mountain_bg:
+                        current_bg = cave_bg 
+                    elif current_bg == cave_bg:
+                        current_bg = notre_dame_bg
+                    else: 
+                        current_bg = mountain_bg 
         animate_start_dragon()
 
 if __name__ == "__main__": 
