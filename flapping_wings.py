@@ -14,8 +14,12 @@ dragon_animation_delay = 400
 last_dragon_update = pygame.time.get_ticks()
 start_dragon_index = 0
 
-def start_dragon_sound():   
-    start_dragon_sound = pygame.mixer.music.load("assets/sound_effects/wing_flap.wav")
+def play_start_dragon_sound():   
+    pygame.mixer.music.load("assets/sound_effects/wings_flapping.wav")
+    pygame.mixer.music.play() 
+
+def play_button_click_sound():
+    pygame.mixer.music.load("assets/sound_effects/button_click.wav")
     pygame.mixer.music.play() 
 
 
@@ -32,11 +36,11 @@ current_bg = mountain_bg
 start_dragon = [pygame.image.load(os.path.join("assets/characters/dragon", "dragon1.png")),
                      pygame.image.load(os.path.join("assets/characters/dragon", "dragon2.png"))]
 
-def start_screen():
-    start_button = pygame.image.load(os.path.join("assets/buttons", "start.png"))
+start_button = pygame.image.load(os.path.join("assets/buttons", "start.png"))
+start_button = pygame.transform.scale(start_button, (220, 78))
+    
+def display_start_screen():
     title = pygame.image.load(os.path.join("assets/misc", "title.png"))
-
-    start_button = pygame.transform.scale(start_button, (220, 78))
     title = pygame.transform.scale(title, (240, 99))
     text = font.render("Press right arrow key to change setting", True, (40, 60, 120))
 
@@ -47,34 +51,37 @@ def start_screen():
     screen.blit(start_dragon[start_dragon_index], (dragon_x, dragon_y))
     pygame.display.update() 
 
-def start_dragon_animation(): 
-    global dragon_y, dragon_speed, last_dragon_update, start_dragon_index, start_dragon_sound
+def animate_start_dragon(): 
+    global dragon_y, dragon_speed, last_dragon_update, start_dragon_index
     current_time = pygame.time.get_ticks() 
-    if current_time - last_dragon_update > dragon_animation_delay: 
+    if current_time - last_dragon_update > dragon_animation_delay:  
             start_dragon_index = (start_dragon_index + 1) % len(start_dragon) 
             last_dragon_update = current_time 
     dragon_y += dragon_speed 
     if dragon_y > 220 or dragon_y < 185:
         dragon_speed *= -1
-        start_dragon_sound() 
+        play_start_dragon_sound()
     
-
 def main_loop():
     global current_bg
     running = True
     while running: 
-        start_screen() 
+        display_start_screen() 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_RIGHT: 
+            elif event.type == pygame.MOUSEBUTTONDOWN and event.button ==1:
+                start_button_rect = start_button.get_rect(topleft=(420, 450))
+                if start_button_rect.collidepoint(event.pos):
+                    play_button_click_sound() 
+            elif event.type == pygame.KEYDOWN and event.key == pygame.K_RIGHT: 
                 if current_bg == mountain_bg:
                     current_bg = cave_bg 
                 elif current_bg == cave_bg:
                     current_bg = notre_dame_bg
                 else: 
                     current_bg = mountain_bg 
-        start_dragon_animation()
+        animate_start_dragon()
 
 if __name__ == "__main__": 
     main_loop() 
