@@ -11,7 +11,7 @@ dragon_x, dragon_y = 400, 200
 dragon_speed = 2
 dragon_animation_delay = 400 
 last_dragon_update = pygame.time.get_ticks()
-start_dragon_index = 0
+dragon_index = 0
 
 def play_start_dragon_sound():   
     pygame.mixer.music.load("assets/sound_effects/wings_flapping.wav")
@@ -32,8 +32,8 @@ notre_dame_bg = pygame.transform.scale(notre_dame_bg, (screen_width, screen_heig
 
 current_bg = mountain_bg
 
-start_dragon = [pygame.image.load(os.path.join("assets/characters/dragon", "dragon1.png")),
-                     pygame.image.load(os.path.join("assets/characters/dragon", "dragon2.png"))]
+dragon = [pygame.image.load(os.path.join("assets/characters/dragon", "dragon1.png")),
+          pygame.image.load(os.path.join("assets/characters/dragon", "dragon2.png"))]
 
 start_button = pygame.image.load(os.path.join("assets/buttons", "start.png"))
 start_button = pygame.transform.scale(start_button, (220, 78))
@@ -41,24 +41,38 @@ start_button = pygame.transform.scale(start_button, (220, 78))
 def display_start_screen():
     title = pygame.image.load(os.path.join("assets/misc", "title.png"))
     title = pygame.transform.scale(title, (240, 99))
-    text = font.render("Press right arrow key to change setting", True, (40, 60, 120))
+    bg_text = font.render("Press right arrow key to change setting", True, (40, 60, 120))
 
     screen.blit(current_bg, (0, 0))
     screen.blit(start_button, (420, 450))
     screen.blit(title, (405, 50))
-    screen.blit(text, (395, 400))
-    screen.blit(start_dragon[start_dragon_index], (dragon_x, dragon_y))
+    screen.blit(bg_text, (395, 400))
+    screen.blit(dragon[dragon_index], (dragon_x, dragon_y))
     pygame.display.update() 
 
 def display_sprite_screen():
+    left_arrow = pygame.image.load(os.path.join("assets/buttons", "arrow_left.png"))
+    right_arrow = pygame.image.load(os.path.join("assets/buttons", "arrow_right.png"))
+    sprite_text = font.render("Select your character", True, (40, 60, 120))
+    start_text = font.render("Press space key to begin", True, (40, 60, 120))
+
+    sprite_text = pygame.transform.scale(sprite_text, (280, 50))
+    left_arrow = pygame.transform.scale(left_arrow, (700, 300))
+    right_arrow = pygame.transform.scale(right_arrow, (700, 300))
+
     screen.blit(current_bg, (0, 0))
+    screen.blit(sprite_text, (395, 55))
+    screen.blit(left_arrow, (0, 150))
+    screen.blit(right_arrow, (370, 125))
+    screen.blit(dragon[dragon_index], (dragon_x, dragon_y))
+    screen.blit(start_text, (445, 400))
     pygame.display.update() 
 
 def animate_start_dragon(): 
-    global dragon_y, dragon_speed, last_dragon_update, start_dragon_index
+    global dragon_y, dragon_speed, last_dragon_update, dragon_index
     current_time = pygame.time.get_ticks() 
     if current_time - last_dragon_update > dragon_animation_delay:  
-            start_dragon_index = (start_dragon_index + 1) % len(start_dragon) 
+            dragon_index = (dragon_index + 1) % len(dragon) 
             last_dragon_update = current_time 
     dragon_y += dragon_speed 
     if dragon_y > 220 or dragon_y < 185:
