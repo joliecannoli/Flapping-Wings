@@ -89,7 +89,7 @@ def display_sprite_screen():
     pygame.display.update() 
 
 def animate_dragon(): 
-    global dragon_y, dragon_speed, last_dragon_update, dragon_index, vertical_velocity_dragon
+    global dragon_y, dragon_speed, last_dragon_update, dragon_index, vertical_velocity_dragon, gravity 
     current_time = pygame.time.get_ticks() 
     if current_time - last_dragon_update > dragon_animation_delay:  
             dragon_index = (dragon_index + 1) % len(dragon) 
@@ -109,9 +109,12 @@ def animate_bat():
         last_bat_update = current_time 
     bat_y += bat_speed + vertical_velocity_bat
     vertical_velocity_bat += gravity 
-    if bat_y > 180 or bat_y < 150:
+    if bat_y > 180:
+        bat_speed *= -1
+        play_start_dragon_sound()
+    elif bat_y < 150:
         bat_speed *= -1 
-        play_start_dragon_sound() 
+        play_start_dragon_sound()  
 
 def main_loop():
     global current_bg, dragon_index, bat_index, is_dragon, vertical_velocity_dragon, vertical_velocity_bat, sprite_screen_displayed
@@ -121,36 +124,42 @@ def main_loop():
     sprite_screen_displayed = False 
     while running: 
         if current_screen == "start_screen":
-            display_start_screen()
-        elif current_screen == "settings_screen":
+            display_start_screen() 
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_RIGHT:
+                        if current_bg == mountain_bg:
+                            current_bg = cave_bg 
+                        elif current_bg == cave_bg:
+                            current_bg = notre_dame_bg
+                        else: 
+                            current_bg = mountain_bg
+                elif event.type == pygame.MOUSEBUTTONDOWN and event.button ==1:
+                    start_button_rect = start_button.get_rect(topleft=(420, 450))
+                    if start_button_rect.collidepoint(event.pos):
+                        play_button_click_sound() 
+                        current_screen = "settings_screen"
+                        sprite_screen_displayed = True 
+
+        elif current_screen == "settings_screen": 
             display_sprite_screen() 
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
-            elif event.type == pygame.MOUSEBUTTONDOWN and event.button ==1:
-                start_button_rect = start_button.get_rect(topleft=(420, 450))
-                left_arrow_rect = left_arrow.get_rect(topleft=(0,150))
-                right_arrow_rect = right_arrow.get_rect(topleft=(370, 125))
-                if start_button_rect.collidepoint(event.pos):
-                    play_button_click_sound() 
-                    current_screen = "settings_screen"
-                    sprite_screen_displayed = True 
-                elif left_arrow_rect.collidepoint(event.pos) or right_arrow_rect.collidepoint(event.pos):
-                    play_button_click_sound()
-                    is_dragon = not is_dragon 
-            elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_RIGHT and not sprite_screen_displayed:
-                    if current_bg == mountain_bg:
-                        current_bg = cave_bg 
-                    elif current_bg == cave_bg:
-                        current_bg = notre_dame_bg
-                    else: 
-                        current_bg = mountain_bg
-                elif event.key == pygame.K_SPACE:
-                    if is_dragon:
-                        vertical_velocity_dragon = -8
-                    else:
-                        vertical_velocity_bat = -8
+            for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        running = False 
+                    elif event.type == pygame.MOUSEBUTTONDOWN and event.button ==1:
+                        left_arrow_rect = left_arrow.get_rect(topleft=(0, 150))
+                        right_arrow_rect = right_arrow.get_rect(topleft=(360, 125))
+                        if left_arrow_rect.collidepoint(event.pos) or right_arrow_rect.collidepoint(event.pos):
+                            play_button_click_sound()
+                            is_dragon = not is_dragon 
+                    elif event.type == pygame.KEYDOWN:
+                        if event.key == pygame.K_SPACE:
+                            if is_dragon:
+                                vertical_velocity_dragon = -8
+                            else:
+                                vertical_velocity_bat = -8
 
         if is_dragon:
             animate_dragon()
