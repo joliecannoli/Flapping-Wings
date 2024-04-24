@@ -113,10 +113,11 @@ def animate_bat():
         play_start_dragon_sound() 
 
 def main_loop():
-    global current_bg, dragon_index, bat_index, is_dragon, vertical_velocity_dragon, vertical_velocity_bat
+    global current_bg, dragon_index, bat_index, is_dragon, vertical_velocity_dragon, vertical_velocity_bat, sprite_screen_displayed
     running = True
     current_screen ="start_screen"
     is_dragon = True 
+    sprite_screen_displayed = False 
     while running: 
         if current_screen == "start_screen":
             display_start_screen()
@@ -132,11 +133,12 @@ def main_loop():
                 if start_button_rect.collidepoint(event.pos):
                     play_button_click_sound() 
                     current_screen = "settings_screen"
-                elif left_arrow_rect.collidepoint(event.pos) or right_arrow_rect.collidepoint(event.pos):
+                    sprite_screen_displayed = True 
+                elif not sprite_screen_displayed and (left_arrow_rect.collidepoint(event.pos) or right_arrow_rect.collidepoint(event.pos)):
                     play_button_click_sound() 
                     is_dragon = not is_dragon
             elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_RIGHT: 
+                if event.key == pygame.K_RIGHT and not sprite_screen_displayed:
                     if current_bg == mountain_bg:
                         current_bg = cave_bg 
                     elif current_bg == cave_bg:
