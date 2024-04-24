@@ -2,7 +2,7 @@ import pygame
 import os  
 
 pygame.init()
-pygame.mixer.init
+pygame.mixer.init() 
 screen_width, screen_height = 1100, 600 
 screen = pygame.display.set_mode((screen_width, screen_height))
 font = pygame.font.Font('FFFFORWA.ttf', 10)
@@ -28,9 +28,10 @@ def play_start_dragon_sound():
     pygame.mixer.music.load("assets/sound_effects/wings_flapping.wav")
     pygame.mixer.music.play() 
 
-def play_button_click_sound():
-    pygame.mixer.music.load("assets/sound_effects/button_click.wav")
-    pygame.mixer.music.play() 
+button_click_sound = pygame.mixer.Sound("assets/sound_effects/button_click.wav")
+
+def play_button_click_sound(): 
+    button_click_sound.play() 
 
 mountain_bg = pygame.image.load(os.path.join("assets/backgrounds", "mountains.png"))
 cave_bg = pygame.image.load(os.path.join("assets/backgrounds", "cave.png"))
@@ -134,9 +135,9 @@ def main_loop():
                     play_button_click_sound() 
                     current_screen = "settings_screen"
                     sprite_screen_displayed = True 
-                elif not sprite_screen_displayed and (left_arrow_rect.collidepoint(event.pos) or right_arrow_rect.collidepoint(event.pos)):
-                    play_button_click_sound() 
-                    is_dragon = not is_dragon
+                elif left_arrow_rect.collidepoint(event.pos) or right_arrow_rect.collidepoint(event.pos):
+                    play_button_click_sound()
+                    is_dragon = not is_dragon 
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RIGHT and not sprite_screen_displayed:
                     if current_bg == mountain_bg:
@@ -155,6 +156,7 @@ def main_loop():
             animate_dragon()
         else:
             animate_bat()
+
 
 if __name__ == "__main__": 
     main_loop() 
