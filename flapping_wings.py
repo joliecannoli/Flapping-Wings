@@ -90,6 +90,12 @@ def display_sprite_screen():
 
 def display_game_screen():
     screen.blit(current_bg, (0, 0))
+    if is_dragon: 
+        screen.blit(dragon[dragon_index], (dragon_x, dragon_y))
+    else: 
+        resized_bat = pygame.transform.scale(bat[bat_index], (bat[bat_index].get_width() * 1.5, bat[bat_index].get_height() * 1.5))
+        screen.blit(resized_bat, (bat_x, bat_y))
+    pygame.display.update() 
 
 
 def animate_dragon(): 
@@ -183,26 +189,21 @@ def main_loop():
                             vertical_velocity_dragon = -8
                         else:
                             vertical_velocity_bat = -8
-                        # Transition to the game screen
                         current_screen = "game_screen"
                         sprite_screen_displayed = False
 
         elif current_screen == "game_screen":
-            # Call the display function for the game screen
             display_game_screen()
-            # Add game logic here
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
 
         pygame.display.flip() 
 
-
         if is_dragon:
             animate_dragon()
         else:
             animate_bat()
-
 
 if __name__ == "__main__": 
     main_loop() 
