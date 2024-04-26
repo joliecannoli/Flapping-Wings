@@ -41,8 +41,8 @@ start_button = pygame.transform.scale(start_button, (220, 78))
 column_down = pygame.image.load(os.path.join("assets/obstacles/column", "column_down.png"))
 column_up = pygame.image.load(os.path.join("assets/obstacles/column", "column_up.png"))
 
-column_up = pygame.transform.scale(column_up, (550, 300))
-column_down = pygame.transform.scale(column_down, (550, 300))
+column_up = pygame.transform.scale(column_up, (100, 200))
+column_down = pygame.transform.scale(column_down, (100, 200))
 
 column_x = screen_width
 columns = [{"x": screen_width, "y": random.randint(100, 400)}]
@@ -96,6 +96,21 @@ def display_game_screen():
         if not collision:
             columns.append({"x": new_column_x, "y": new_column_y})
         pygame.display.update() 
+
+def detect_collision(dragon_x, dragon_y, dragon_width, dragon_height):
+    dragon_rect = pygame.Rect(dragon_x, dragon_y, dragon_width, dragon_height)
+    for column in columns:
+        column_x = column["x"]
+        column_up_y = screen_height - column_up.get_height()
+        column_down_y = 0
+        column_outline_x = column_x - 1  
+        column_outline_width = column_up.get_width() + 2   
+        column_outline_rect = pygame.Rect(column_outline_x, column_up_y, column_outline_width, column_up.get_height())
+
+        if dragon_rect.colliderect(column_outline_rect):
+            return True
+    return False
+                        
 
 def animate_dragon(current_screen): 
     global dragon_y, dragon_speed, last_dragon_update, dragon_index, vertical_velocity_dragon, gravity, is_space_pressed
@@ -171,11 +186,9 @@ def main_loop():
                 elif event.type == pygame.KEYUP:
                     if event.key == pygame.K_SPACE:
                         is_space_pressed = False
-                        
-        for column in columns: 
-            column["x"] -= 5
-            if column["x"] < -column_up.get_width():
-                column["x"] = screen_width + random.randint(200, 400) 
+            if detect_collision(dragon_x, dragon_y, dragon[0].get_width(), dragon[0].get_height()):
+                print("Game Over")
+                running = False
 
         pygame.display.flip() 
 
