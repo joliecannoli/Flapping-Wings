@@ -111,6 +111,14 @@ def animate_dragon(current_screen):
         vertical_velocity_dragon += gravity  
         play_flapping_sound()
 
+    if dragon_y <= 0: 
+        dragon_y = 0 
+        vertical_velocity_dragon = 0
+
+    if dragon_y + dragon[dragon_index].get_height() >= screen_height:
+        dragon_y = screen_height - dragon[dragon_index].get_height()
+        vertical_velocity_dragon = 0 
+
 def animate_bat(current_screen):
     global bat_y, bat_speed, last_bat_update, bat_index, vertical_velocity_bat, gravity, is_space_pressed   
     current_time = pygame.time.get_ticks() 
@@ -123,7 +131,14 @@ def animate_bat(current_screen):
         vertical_velocity_bat += gravity  
         play_flapping_sound()
 
-         
+    if bat_y <=0:
+        bat_y = 0 
+        vertical_velocity_bat = 0 
+
+    if bat_y + bat[bat_index].get_height() >= screen_height:
+        bat_y = screen_height - bat[bat_index].get_height()
+        vertical_velocity_bat = 0
+     
 
 def main_loop():
     global current_bg, dragon_index, bat_index, is_dragon, vertical_velocity_dragon, vertical_velocity_bat, sprite_screen_displayed, is_space_pressed, dragon_y 
