@@ -49,7 +49,7 @@ column_up_mask = pygame.mask.from_surface(column_up)
 column_down_mask = pygame.mask.from_surface(column_down)
 
 game_over = pygame.image.load(os.path.join("assets/misc", "game_over.png"))
-game_over = pygame.transform.scale(game_over, (600, 400))
+game_over = pygame.transform.scale(game_over, (600, 350))
 
 column_x = screen_width
 columns = [{"x": screen_width, "y": random.randint(100, 400)}]
@@ -106,7 +106,7 @@ def display_game_screen():
 
 def display_game_over_screen():
     screen.blit(current_bg, (0, 0))
-    screen.blit(game_over, (500, 0))
+    screen.blit(game_over, (250, 0))
 
 def detect_collision(dragon_x, dragon_y, dragon_width, dragon_height):
     dragon_rect = pygame.Rect(dragon_x, dragon_y, dragon_width, dragon_height)
@@ -146,11 +146,12 @@ def animate_dragon(current_screen):
         vertical_velocity_dragon = 0 
 
 def main_loop():
-    global is_dragon, current_bg, dragon_index, is_dragon, vertical_velocity_dragon, sprite_screen_displayed, is_space_pressed, dragon_y, column_x 
+    global is_dragon, current_bg, dragon_index, is_dragon, vertical_velocity_dragon, sprite_screen_displayed, is_space_pressed, dragon_y, column_x, is_game_over 
     running = True
     current_screen ="start_screen"
     is_dragon = True 
     sprite_screen_displayed = False 
+    is_game_over = False
     while running:
         if current_screen == "start_screen":
             display_start_screen() 
@@ -202,8 +203,23 @@ def main_loop():
             if detect_collision(dragon_x, dragon_y, dragon[0].get_width(), dragon[0].get_height()):
                 display_game_over_screen()
                 current_screen = "game_over_screen"
-                pygame.display.update() 
-
+                is_game_over = True
+                pygame.display.update()
+            else:
+                animate_dragon(current_screen)
+        else:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_SPACE:
+                        is_game_over = False
+                        dragon_y = 200 
+                        column_x = screen_width 
+                        columns.clear()  
+                        columns.append({"x": screen_width, "y": random.randint(100, 400)})  # Add initial column
+                        current_screen = "game_screen"
+                        is_space_pressed = False
         pygame.display.flip() 
 
         if is_dragon:
