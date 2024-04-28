@@ -51,6 +51,13 @@ column_down_mask = pygame.mask.from_surface(column_down)
 game_over = pygame.image.load(os.path.join("assets/misc", "game_over.png"))
 game_over = pygame.transform.scale(game_over, (600, 350))
 
+restart_button = pygame.image.load(os.path.join("assets/buttons", "restart.png"))
+restart_button = pygame.transform.scale(restart_button, (500, 350))
+
+quit_button = pygame.image.load(os.path.join("assets/buttons", "quit.png"))
+quit_button = pygame.transform.scale(quit_button, (500, 350))
+
+
 column_x = screen_width
 columns = [{"x": screen_width, "y": random.randint(100, 400)}]
 column_gap = 200 
@@ -107,6 +114,8 @@ def display_game_screen():
 def display_game_over_screen():
     screen.blit(current_bg, (0, 0))
     screen.blit(game_over, (250, 0))
+    screen.blit(restart_button, (300, 130))
+    screen.blit(quit_button, (300, 250))
 
 def detect_collision(dragon_x, dragon_y, dragon_width, dragon_height):
     dragon_rect = pygame.Rect(dragon_x, dragon_y, dragon_width, dragon_height)
@@ -123,7 +132,6 @@ def detect_collision(dragon_x, dragon_y, dragon_width, dragon_height):
             if dragon_mask.overlap(column_down_mask, column_down_mask_offset):
                 return True
     return False
-
 
 def animate_dragon(current_screen): 
     global dragon_y, dragon_speed, last_dragon_update, dragon_index, vertical_velocity_dragon, gravity, is_space_pressed
