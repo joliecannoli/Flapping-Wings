@@ -130,10 +130,6 @@ def display_game_over_screen():
             break
         screen.blit(dragon[dragon_index], (dragon_x, dragon_y))
         pygame.display.update()
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                quit()
                 
 def detect_collision(dragon_x, dragon_y, dragon_width, dragon_height):
     dragon_rect = pygame.Rect(dragon_x, dragon_y, dragon_width, dragon_height)
@@ -214,7 +210,6 @@ def main_loop():
                     if start_button_rect.collidepoint(event.pos):
                         play_button_click_sound() 
                         current_screen = "settings_screen"
-                        sprite_screen_displayed = True 
 
         elif current_screen == "settings_screen":
             display_sprite_screen()
@@ -252,18 +247,29 @@ def main_loop():
                 pygame.display.update()
             else:
                 animate_dragon(current_screen)
-        else:
+
+        elif current_screen == "game_over_screen":
+            display_game_over_screen()
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
-                elif event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_SPACE:
+                elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                    restart_button_rect = restart_button.get_rect(topleft=(300, 130))
+                    quit_button_rect = quit_button.get_rect(topleft=(300, 250))
+                    if restart_button_rect.collidepoint(event.pos):
+                        play_button_click_sound()
                         is_game_over = False
                         dragon_y = 200 
                         column_x = screen_width 
                         columns.clear()  
                         columns.append({"x": screen_width, "y": random.randint(100, 400)})  
                         is_space_pressed = False
+                        current_screen = "start_screen"  
+                elif quit_button_rect.collidepoint(event.pos):
+                    play_button_click_sound()
+                    running = False 
+                        
+
         pygame.display.flip() 
 
         if is_dragon:
