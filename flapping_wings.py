@@ -49,7 +49,7 @@ column_up_mask = pygame.mask.from_surface(column_up)
 column_down_mask = pygame.mask.from_surface(column_down)
 
 game_over = pygame.image.load(os.path.join("assets/misc", "game_over.png"))
-game_over = pygame.transform.scale(game_over, (600, 350))
+game_over = pygame.transform.scale(game_over, (590, 350))
 
 restart_button = pygame.image.load(os.path.join("assets/buttons", "restart.png"))
 restart_button = pygame.transform.scale(restart_button, (500, 350))
@@ -90,8 +90,7 @@ def display_sprite_screen():
 
 def display_game_screen():
     screen.blit(current_bg, (0, 0))
-    if is_dragon: 
-        screen.blit(dragon[dragon_index], (dragon_x, dragon_y))
+    screen.blit(dragon[dragon_index], (dragon_x, dragon_y))
     if current_bg in [mountain_bg]:
         screen.blit(column_up, (column_x, screen_height - column_up.get_height()))
     for column in columns:
@@ -116,7 +115,26 @@ def display_game_over_screen():
     screen.blit(game_over, (250, 0))
     screen.blit(restart_button, (300, 130))
     screen.blit(quit_button, (300, 250))
-
+    falling_speed = 30
+    global dragon_y
+    while True:
+        screen.blit(current_bg, (0, 0))  
+        screen.blit(game_over, (250, 0))
+        screen.blit(restart_button, (300, 130))
+        screen.blit(quit_button, (300, 250))
+        dragon_y += falling_speed
+        if dragon_y >= screen_height - dragon[dragon_index].get_height():
+            dragon_y = screen_height - dragon[dragon_index].get_height()
+            screen.blit(dragon[dragon_index], (dragon_x, dragon_y))
+            pygame.display.update()
+            break
+        screen.blit(dragon[dragon_index], (dragon_x, dragon_y))
+        pygame.display.update()
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                quit()
+                
 def detect_collision(dragon_x, dragon_y, dragon_width, dragon_height):
     dragon_rect = pygame.Rect(dragon_x, dragon_y, dragon_width, dragon_height)
     for column in columns:
@@ -131,10 +149,12 @@ def detect_collision(dragon_x, dragon_y, dragon_width, dragon_height):
         if dragon_rect.colliderect((column_x, column_down_y, column_down.get_width(), column_down.get_height())):
             if dragon_mask.overlap(column_down_mask, column_down_mask_offset):
                 return True
+    if dragon_y <= 0 or dragon_y + dragon_height >= screen_height:
+        return True
     return False
 
 def animate_dragon(current_screen): 
-    global dragon_y, dragon_speed, last_dragon_update, dragon_index, vertical_velocity_dragon, gravity, is_space_pressed
+    global dragon_y, dragon_speed, last_dragon_update, dragon_index, vertical_velocity_dragon, gravity, is_space_pressed, is_game_over
     current_time = pygame.time.get_ticks() 
     if current_time - last_dragon_update > dragon_animation_delay:  
         dragon_index = (dragon_index + 1) % len(dragon) 
@@ -146,12 +166,29 @@ def animate_dragon(current_screen):
         play_flapping_sound()
 
     if dragon_y <= 0: 
-        dragon_y = 0 
-        vertical_velocity_dragon = 0
+        is_game_over = True 
 
-    if dragon_y + dragon[dragon_index].get_height() >= screen_height:
-        dragon_y = screen_height - dragon[dragon_index].get_height()
-        vertical_velocity_dragon = 0 
+    dragon_rect = pygame.Rect(dragon_x, dragon_y, dragon[0].get_width(), dragon [0].get_height())
+    for column in columns:
+        column_x = column["x"]
+        column_up_y = screen_height - column_up.get_height() 
+        column_down_y = 0 
+        column_up_mask_offset = (column_x - dragon_x, column_up_y - dragon_y)
+        column_down_mask_offset = (column_x - dragon_x, column_down_y - dragon_y)
+        if dragon_rect.colliderect((column_x, column_up_y, column_up.get_width(), column_up.get_height())):
+            if dragon_mask.overlap(column_up_mask, column_up_mask_offset):
+                is_game_over = True
+        if dragon_rect.colliderect((column_x, column_down_y, column_down.get_width(), column_down.get_height())):
+            if dragon_mask.overlap(column_down_mask, column_down_mask_offset):
+                is_game_over = True
+
+if dragon_y <= 0:
+    dragon_y = 0 
+    vertical_velocity_dragon = 0 
+
+if dragon_y + dragon[dragon_index].get_height() >= screen_height:
+    dragon_y = screen_height - dragon[dragon_index].get_height() 
+    vertical_velocity_dragon = 0 
 
 def main_loop():
     global is_dragon, current_bg, dragon_index, is_dragon, vertical_velocity_dragon, sprite_screen_displayed, is_space_pressed, dragon_y, column_x, is_game_over 
@@ -225,8 +262,7 @@ def main_loop():
                         dragon_y = 200 
                         column_x = screen_width 
                         columns.clear()  
-                        columns.append({"x": screen_width, "y": random.randint(100, 400)})  # Add initial column
-                        current_screen = "game_screen"
+                        columns.append({"x": screen_width, "y": random.randint(100, 400)})  
                         is_space_pressed = False
         pygame.display.flip() 
 
