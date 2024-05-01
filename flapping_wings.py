@@ -16,6 +16,11 @@ dragon_index = 0
 is_space_pressed = False
 vertical_velocity_dragon = 0 
 gravity = 0.3
+score = 0 
+high_score = 0 
+
+if score > high_score: 
+    high_score = score
 
 def play_flapping_sound():   
     pygame.mixer.music.load("assets/sound_effects/wings_flapping.wav")
@@ -59,7 +64,7 @@ quit_button = pygame.transform.scale(quit_button, (500, 350))
 
 
 column_x = screen_width
-columns = [{"x": screen_width, "y": random.randint(100, 400)}]
+columns = [{"x": screen_width, "y": random.randint(100, 400), "passed": False}]
 column_gap = 200 
 column_spacing = 300
 
@@ -89,26 +94,35 @@ def display_sprite_screen():
     pygame.display.update() 
 
 def display_game_screen():
+    global score, columns
     screen.blit(current_bg, (0, 0))
     screen.blit(dragon[dragon_index], (dragon_x, dragon_y))
     if current_bg in [mountain_bg]:
         screen.blit(column_up, (column_x, screen_height - column_up.get_height()))
+
     for column in columns:
         screen.blit(column_up, (column["x"], screen_height - column_up.get_height()))
         screen.blit(column_down, (column["x"], 0))  
         column["x"] -= 5  
 
+        if column["x"] + column_up.get_width() < dragon_x and not column["passed"]:
+            column["passed"] = True
+            score +=1
+
+        scorekeeping = font.render("Score: " + str(score), True, (40, 60, 120))
+        screen.blit(scorekeeping, (1000, 20))
+
     if random.randint(0, 1000) < 10: 
         new_column_x = screen_width + random.randint(200, 400)
         new_column_y = random.randint(100, 400)
         if not any(abs(new_column_x - col["x"]) < column_up.get_width() for col in columns):
-            columns.append({"x": new_column_x, "y": new_column_y})
-        pygame.display.update()
+             columns.append({"x": new_column_x, "y": new_column_y, "passed": False})
 
         collision = any(abs(new_column_x - col["x"]) < column_up.get_width() + 100 for col in columns)
         if not collision:
-            columns.append({"x": new_column_x, "y": new_column_y})
-        pygame.display.update() 
+            columns.append({"x": new_column_x, "y": new_column_y, "passed": False})
+        pygame.display.update()  
+
 
 def display_game_over_screen():
     screen.blit(current_bg, (0, 0))
@@ -187,12 +201,14 @@ if dragon_y + dragon[dragon_index].get_height() >= screen_height:
     vertical_velocity_dragon = 0 
 
 def main_loop():
-    global is_dragon, current_bg, dragon_index, is_dragon, vertical_velocity_dragon, sprite_screen_displayed, is_space_pressed, dragon_y, column_x, is_game_over 
+    global is_dragon, current_bg, dragon_index, is_dragon, vertical_velocity_dragon, sprite_screen_displayed, is_space_pressed, dragon_y, column_x, columns, is_game_over, new_column_x, new_column_y
     running = True
     current_screen ="start_screen"
     is_dragon = True 
     sprite_screen_displayed = False 
     is_game_over = False
+    new_column_x = screen_width + random.randint(200, 400)
+    new_column_y = random.randint(100, 400)
     while running:
         if current_screen == "start_screen":
             display_start_screen() 
@@ -257,19 +273,21 @@ def main_loop():
                     restart_button_rect = restart_button.get_rect(topleft=(300, 130))
                     quit_button_rect = quit_button.get_rect(topleft=(300, 250))
                     if restart_button_rect.collidepoint(event.pos):
+                        score = 0 
                         play_button_click_sound()
                         is_game_over = False
                         dragon_y = 200 
                         column_x = screen_width 
                         columns.clear()  
-                        columns.append({"x": screen_width, "y": random.randint(100, 400)})  
+                        columns.append({"x": new_column_x, "y": new_column_y, "passed": False})
                         is_space_pressed = False
                         current_screen = "start_screen"  
-                elif quit_button_rect.collidepoint(event.pos):
-                    play_button_click_sound()
-                    running = False 
-                        
+                    elif quit_button_rect.collidepoint(event.pos):
+                        play_button_click_sound()
+                        running = False
 
+                        
+                        
         pygame.display.flip() 
 
         if is_dragon:
