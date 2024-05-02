@@ -22,14 +22,18 @@ high_score = 0
 if score > high_score: 
     high_score = score
 
-def play_flapping_sound():   
-    pygame.mixer.music.load("assets/sound_effects/wings_flapping.wav")
-    pygame.mixer.music.play() 
-
 button_click_sound = pygame.mixer.Sound("assets/sound_effects/button_click.wav")
 
 def play_button_click_sound(): 
     button_click_sound.play() 
+
+def play_flapping_sound():   
+    pygame.mixer.music.load("assets/sound_effects/wings_flapping.wav")
+    pygame.mixer.music.play()
+
+def play_falling_sound():
+    pygame.mixer.music.load("assets/sound_effects/collision_fall.wav")
+    pygame.mixer.music.play()
 
 mountain_bg = pygame.image.load(os.path.join("assets/backgrounds", "mountains.png"))
 notre_dame_bg = pygame.image.load(os.path.join("assets/backgrounds", "notre_dame.png"))
@@ -123,7 +127,6 @@ def display_game_screen():
             columns.append({"x": new_column_x, "y": new_column_y, "passed": False})
         pygame.display.update()  
 
-
 def display_game_over_screen():
     screen.blit(current_bg, (0, 0))
     screen.blit(game_over, (250, 0))
@@ -166,14 +169,13 @@ def detect_collision(dragon_x, dragon_y, dragon_width, dragon_height):
 def animate_dragon(current_screen): 
     global dragon_y, dragon_speed, last_dragon_update, dragon_index, vertical_velocity_dragon, gravity, is_space_pressed, is_game_over
     current_time = pygame.time.get_ticks() 
-    if current_time - last_dragon_update > dragon_animation_delay:  
+    if current_time - last_dragon_update > dragon_animation_delay and not is_game_over:  
         dragon_index = (dragon_index + 1) % len(dragon) 
         last_dragon_update = current_time
     
     if current_screen == "game_screen":
         dragon_y += dragon_speed + vertical_velocity_dragon
         vertical_velocity_dragon += gravity  
-        play_flapping_sound()
 
     if dragon_y <= 0: 
         is_game_over = True 
@@ -192,13 +194,8 @@ def animate_dragon(current_screen):
             if dragon_mask.overlap(column_down_mask, column_down_mask_offset):
                 is_game_over = True
 
-if dragon_y <= 0:
-    dragon_y = 0 
-    vertical_velocity_dragon = 0 
-
-if dragon_y + dragon[dragon_index].get_height() >= screen_height:
-    dragon_y = screen_height - dragon[dragon_index].get_height() 
-    vertical_velocity_dragon = 0 
+        if is_game_over:
+            return
 
 def main_loop():
     global is_dragon, current_bg, dragon_index, is_dragon, vertical_velocity_dragon, sprite_screen_displayed, is_space_pressed, dragon_y, column_x, columns, is_game_over, new_column_x, new_column_y
@@ -240,7 +237,7 @@ def main_loop():
                         sprite_screen_displayed = False
                 elif event.type == pygame.KEYDOWN: 
                     if event.key == pygame.K_SPACE:
-                        is_space_pressed = True 
+                        is_space_pressed = True
                 elif event.type == pygame.KEYUP:
                     if event.key == pygame.K_SPACE:
                         is_space_pressed = False 
@@ -253,10 +250,12 @@ def main_loop():
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_SPACE:
                         is_space_pressed = True 
+                        play_flapping_sound()
                 elif event.type == pygame.KEYUP:
                     if event.key == pygame.K_SPACE:
                         is_space_pressed = False
             if detect_collision(dragon_x, dragon_y, dragon[0].get_width(), dragon[0].get_height()):
+                play_falling_sound() 
                 display_game_over_screen()
                 current_screen = "game_over_screen"
                 is_game_over = True
@@ -286,7 +285,7 @@ def main_loop():
                         play_button_click_sound()
                         running = False
 
-                        
+                  
                         
         pygame.display.flip() 
 
