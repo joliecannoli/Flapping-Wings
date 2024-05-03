@@ -1,3 +1,4 @@
+
 import pygame
 import os
 import random  
@@ -17,10 +18,9 @@ is_space_pressed = False
 vertical_velocity_dragon = 0 
 gravity = 0.3
 score = 0 
-high_score = 0 
+final_score = 0 
+high_score = 0
 
-if score > high_score: 
-    high_score = score
 
 button_click_sound = pygame.mixer.Sound("assets/sound_effects/button_click.wav")
 
@@ -79,7 +79,7 @@ def display_start_screen():
 
     screen.blit(current_bg, (0, 0))
     screen.blit(start_button, (420, 450))
-    screen.blit(title, (405, 50))
+    screen.blit(title, (420, 50))
     screen.blit(bg_text, (395, 400))
     screen.blit(dragon[dragon_index], (dragon_x, dragon_y))
     pygame.display.update() 
@@ -128,21 +128,25 @@ def display_game_screen():
         pygame.display.update()  
 
 def display_game_over_screen():
-    screen.blit(current_bg, (0, 0))
-    screen.blit(game_over, (250, 0))
-    screen.blit(restart_button, (300, 130))
-    screen.blit(quit_button, (300, 250))
     falling_speed = 30
-    global dragon_y
+    global dragon_y, score, high_score, final_score 
+    final_score = score 
     while True:
+        final_score_text = font.render("Final Score: " + str(final_score), True, (40, 60, 120))
+        high_score_text = font.render("High Score: " + str(high_score), True, (40, 60, 120))  # Render high score text
         screen.blit(current_bg, (0, 0))  
-        screen.blit(game_over, (250, 0))
-        screen.blit(restart_button, (300, 130))
-        screen.blit(quit_button, (300, 250))
+        screen.blit(game_over, (250, -50))
+        screen.blit(restart_button, (300, 70))
+        screen.blit(quit_button, (300, 200))
+        screen.blit(final_score_text, (500, 280))
+        screen.blit(high_score_text, (500, 400))  
+        if score > high_score:
+            high_score = score
         dragon_y += falling_speed
         if dragon_y >= screen_height - dragon[dragon_index].get_height():
             dragon_y = screen_height - dragon[dragon_index].get_height()
             screen.blit(dragon[dragon_index], (dragon_x, dragon_y))
+
             pygame.display.update()
             break
         screen.blit(dragon[dragon_index], (dragon_x, dragon_y))
@@ -198,7 +202,7 @@ def animate_dragon(current_screen):
             return
 
 def main_loop():
-    global is_dragon, current_bg, dragon_index, is_dragon, vertical_velocity_dragon, sprite_screen_displayed, is_space_pressed, dragon_y, column_x, columns, is_game_over, new_column_x, new_column_y
+    global is_dragon, current_bg, dragon_index, is_dragon, vertical_velocity_dragon, sprite_screen_displayed, is_space_pressed, dragon_y, column_x, columns, is_game_over, new_column_x, new_column_y, score 
     running = True
     current_screen ="start_screen"
     is_dragon = True 
@@ -285,8 +289,7 @@ def main_loop():
                         play_button_click_sound()
                         running = False
 
-                  
-                        
+                   
         pygame.display.flip() 
 
         if is_dragon:
