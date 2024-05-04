@@ -167,14 +167,11 @@ def animate_dragon(current_screen):
     if current_time - last_dragon_update > dragon_animation_delay and not is_game_over:  
         dragon_index = (dragon_index + 1) % len(dragon) 
         last_dragon_update = current_time
-    
     if current_screen == "game_screen":
         dragon_y += dragon_speed + vertical_velocity
         vertical_velocity += gravity  
-
     if dragon_y <= 0: 
         is_game_over = True 
-
     if detect_collision(dragon_x, dragon_y, dragon[0].get_width(), dragon[0].get_height()):
         is_game_over = True
 
@@ -265,7 +262,6 @@ def main_loop():
                     elif quit_button_rect.collidepoint(event.pos):
                         play_button_click_sound()
                         running = False
-
        
         pygame.display.flip() 
 
