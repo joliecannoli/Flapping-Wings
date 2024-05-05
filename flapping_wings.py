@@ -80,12 +80,9 @@ def display_start_screen():
     pygame.display.update() 
 
 def display_sprite_screen():
-    sprite_text = font.render("Select your character", True, (40, 60, 120))
     start_text = font.render("Press space key to begin", True, (40, 60, 120))
-    sprite_text = pygame.transform.scale(sprite_text, (280, 50))
 
     screen.blit(current_bg, (0, 0))
-    screen.blit(sprite_text, (395, 55))
     screen.blit(dragon[dragon_index], (dragon_x, dragon_y))
     screen.blit(start_text, (445, 400))
     pygame.display.update() 
